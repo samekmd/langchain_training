@@ -1,0 +1,270 @@
+Bom, que o Docker é genial.
+
+Muita gente sabe disso, né? Se você entende como é que ele funciona e utiliza o Docker, você sabe que ele é uma mão na roda para muitas coisas além do desenvolvimento também.
+
+Você pode até fazer deploy com ele, como a gente já viu várias vezes nesse canal aqui.
+
+Só que tem algumas coisas na configuração do Docker que eu pelo menos não utilizava muito isso, mas que quando você precisa dessa coisa, ela vai ser uma mão na roda para você.
+
+Vou te mostrar um negócio aqui que vai ser assim meio estranho assim até pessoal, mas fica comigo até o final do vídeo que você vai entender melhor como que isso aqui funciona e depois eu vou te mostrar também como que isso aqui pode te ajudar a gerenciar até servidores, se você quiser.
+
+Vamos lá.
+
+Eu, por incrível que pareça, pode até parecer mentira, mas eu uso três computadores ao mesmo tempo.
+
+Eu tenho aqui um, vou colocar aqui os nomes reais deles.
+
+Então, eu tenho um M132, esse é o host name mesmo do computador, eu tenho outro M4128 e eu tenho um outro que é chamado de Pedora Air.
+
+E aí a minha vontade era trabalhar sempre neste computador, porque este computador tem Linux nele.
+
+Eu já te mostro eles ali por dentro, mas ele tem um Linux nele.
+
+Só que esse computador tem a tela danificada, então não tem como eu trabalhar nele.
+
+Ele fica estacionário aqui parado do lado.
+
+Ele tá do lado aqui literalmente.
+
+Esse outro computador que tem aqui do lado, este outro computador que tá aqui do lado, ele é o computador mais potente que eu tenho aqui.
+
+Então ele é um MacBook M4 com 128 GB de RAM.
+
+Então este computador eu uso ele muito para rodar coisa pesada do Docker e para rodar modelos do OLAMA, modelos mais maiores para eu aprender a utilizar esses modelos aqui.
+
+Só que ele também é este computador que eu tô gravando aqui.
+
+E esse computador ele fica também estacionário aqui.
+
+Ele não sai desse lugar, até porque também fica tudo conectado aqui, as luzes, o monitor, microfone, tudo conectado nesse computador.
+
+Então tirar e colocar essas coisas, não, eu não gosto de fazer muito isso.
+
+Então sobra para mim este computador.
+
+Esse computador é um MacBook M1 com 32 GB de RAM, só que esse computador e esse computador tem o MacBook, o MacOS, né, da Apple.
+
+Ele não tem Linux nesses dois, só esse aqui.
+
+É, eí, o problema desse aqui é que ele tem só 8 GB de RAM.
+
+Então, imagina eu sair deste computador com 128 GB para trabalhar neste computador com 8 GB de RAM.
+
+É bem ruim, né? Aí, o que que eu faço? Deste computador, eu me conecto neste outro computador aqui através de SSH.
+
+Como eu tô em rede local, é praticamente como se eu tivesse local nesse computadorzinho.
+
+E aí a gente acabou de ver, esse computador tem muito pouca memória, então eu preciso de de resolver isso, tá? Jogando tarefas pesadas desse computador para este outro computador.
+
+Quais são as tarefas que eu mais uso que são pesadas e não daria para rodar aqui nos 8 GB de RAM? O lama e Docker.
+
+Então o que que eu faço deste computador? Eu uso este computador com o Docker, só que a diferença é que os comandos eu continuo executando neste computador.
+
+Então, através deste Docker client que tá neste computador aqui, eu rodo o comando do Docker, só que o próprio Docker envia os comandos deste computador para esse aqui e todo mundo fica feliz.
+
+Como que eu faço isso? Tem duas formas de você fazer isso.
+
+Eu vou te mostrar a que eu prefiro, que é utilizando Docker Context.
+
+Então, o Docker, não sei se você já olhou isso aí, ele tem Docker Context LS.
+
+Isso aqui que eu tenho aqui, você percebe que eu não sei por que motivo, mas tem dois contextos aqui.
+
+Eu tô usando esse aqui, que é o que tá marcado.
+
+E esse contexto tá apontando pra um unique socket que tá nessa própria máquina aqui.
+
+Isso significa que todo comando que eu rodar nessa máquina, ele roda nela mesmo.
+
+Só que talvez não saiba, ou talvez você saiba disso, né? É que você pode criar novos contextos.
+
+Então você pode falar docker contest create, eu não lembro muito bem o comando, então vou dar um help aqui.
+
+E aí, ó, esse comando aqui já te mostra que você pode, ó, aqui é que tá o negócio interessante pra gente.
+
+Aqui você vai passar aonde que ele vai fazer essa conexão com o Docker, que é um motor mesmo do Docker, porque aqui o o cliente que eu tô utilizando é literalmente isso, ele é só um cliente, esse CLI do terminal aqui.
+
+Então esse CLI ele vai enviar comandos para onde você passar aqui no context.
+
+E aí, o que que eu posso fazer com isso? Se você observar aqui, eu tenho aqueles KVMs que eu utilizei com você no último vídeo.
+
+Então, se eu conectar, por exemplo, no KVM8, eu vou lá para esse KVM8 e lá eu tenho aquele Docker Swarm, né? Então eu posso falar Docker Service LS, você já vê o que eu tenho aqui, beleza? Só que se eu vier neste computador, fala Docker Service LS, eu não tenho swarm nessa máquina aqui configurado.
+
+E aí se eu quisesse mandar este comando para aquela máquina lá daria certo.
+
+Mas primeiro deixa eu te mostrar como é que é que eu trabalho aqui.
+
+Só para você entender.
+
+Deixa eu colocar esse terminal aqui de um lado e vou abrir o Docker aqui só para você ver como é que isso funciona.
+
+Ó, tô com o Docker, não tenho nenhum contêiner rodando aqui.
+
+E aí eu vou lá naquele computador que tá ali com Fedora.
+
+Então vamos lá nele.
+
+SSH Fedora Air é aquele computadorzinho lá.
+
+Então down clear, só para você ver, ó.
+
+Fast fat.
+
+Este é o computador.
+
+Deixa eu aumentar a tela de novo para você ver melhor.
+
+Ó de novo.
+
+Agora sim.
+
+Então ó, ele é um MacBook Air M1 de 2020, só que ele só tem 8 GB de RAM, como eu falei para você.
+
+E aí desse computador, o Docker Context dele, ó, Docker Context LS tá apontando pra SSH.
+
+E isso aqui é que é um negócio que é genial.
+
+Por quê? Porque agora se eu fizer docker, suponha que eu faça docker run, pode ser o Alpine ali, ó.
+
+Docker run Alpine.
+
+Se tiver a imagem neste computador aqui, ele já usa essa imagem.
+
+Se não tiver, ele vai baixar a imagem e vai subir o Docker nesta máquina do lado de cá.
+
+Então, se eu executar, ó, você já viu ali, ó, já subiu aqui, ó.
+
+Tá vendo, ó? Alpine aqui nessa máquina.
+
+Então, só para se se não bugou a sua cabeça ainda, só para não bugar sua cabeça, eu tô conectado noutra máquina.
+
+Eu não estou conectado nessa máquina.
+
+Nessa máquina que eu mandei o comando, ela mandou o comando para essa máquina aqui, que é a máquina que tem mais memória e assim por diante.
+
+E aí, se eu der um stop aqui, ó, nesse Docker desktop, você vai ver que ele vai derrubar aqui, ó, essa máquina aqui mesmo, ó.
+
+Parei.
+
+E aí, ó, pronto, parou a a máquina do lado de cá.
+
+Então, é basicamente assim, como é que eu trabalho com três máquinas ao mesmo tempo? Como eu tava te falando, se eu tô nessa máquina conectado nessa e eu ligo um docker nessa, trabalhei com três máquinas ao mesmo tempo.
+
+Isso vári isso acontece várias vezes ao longo do dia comigo aqui.
+
+Então, só para te mostrar o que que é isso aqui.
+
+Então, vamos lá.
+
+Vamos fazer o seguinte, vamos criar um contexto pra gente conectar nessa KVM aqui.
+
+E aí quando a gente executar, por exemplo, Docker, Service, LS, a gente mexe naquela máquina.
+
+A gente vai ver os nodes daquela máquina, os services daquela máquina, tudo daquela máquina.
+
+Então, Docker Context, vou pegar o help de novo, só para eu não esquecer o comando.
+
+Esse é o KVM 8 da Hostinger.
+
+E aí, lembrando, eu tenho link de desconto na Hostinger e cupom também.
+
+Vou deixar aí para você.
+
+Vou deixar na descrição do vídeo também.
+
+E aqui eu vou falar docker.
+
+E agora lá no host eu vou só dar um igual SSH2/ e aí aqui pode ser usuário, Luizotávio @ip ou host.
+
+ou no meu caso, a gente fez uma configuração nos outros vídeos anteriores que eu posso fazer SSH KVM8.
+
+Isso tá no meu SSH config, confere os outros vídeos anteriores para você entender melhor, mas eu já fiz essa configuração, então eu posso utilizar KVM8, simples assim.
+
+E aí agora Docker Context LS, você vai ver que eu tenho aqui um novo contexto que aponta para SSH KVM8.
+
+E agora é só eu falar, deixa eu limpar a tela para você ver melhor, ó.
+
+Docker contact use KVM8.
+
+E aí agora ele já começa user, não use.
+
+E aí ele já começa a usar o contexto que aponta paraa outra máquina.
+
+Isso significa que se eu falar Docker Service LS, ele vai buscar os serviços da outra máquina.
+
+Se eu falar qualquer coisa, Docker Node ls, ele vai pegar os nodes daquela outra máquina.
+
+O que não acontece, por exemplo, se eu fizer doer context e use desktop Linux, o que não eh mostraria aquelas coisas que a gente tava buscando nesse computador, porque ele não tem o SWM configurado.
+
+Então, percebeu que eu posso fazer qualquer coisa que eu quiser fazer naquele servidor usando a minha própria máquina, sem me conectar lá.
+
+Eu posso derrubar o serviço lá, eu posso fazer qualquer coisa.
+
+Qual que é o problema, né? Que nem tudo são flores.
+
+O que que gera de transtorno isso aqui? Isso aqui eu até fiz no meu outro vídeo lá que eu falei do Docker, que eu acho que foi o primeiro vídeo que a gente fez um deploy do Docker com Compose.
+
+Naquele outro vídeo a gente tinha esse arquivo de Docker Compose.
+
+Percebe uma coisa aqui nos volumes dele? Percebe que nenhum volume que eu tô utilizando nesse Docker Compose aqui é um bind.
+
+O que que é o bind mount? Bind mount é quando você faz o bind, quando você atrela uma pasta do host no contêiner.
+
+Então, tudo que você altera no contêiner, altera no host e tudo que você altera no host, altera no contêiner.
+
+Isso é o bind.
+
+Tem uma pasta ligada no host e no contêiner.
+
+Esse tipo de volume que eu criei aqui, ele é um a é só um volume normal mesmo docker, mas muita gente chama isso de named volume, né? Que é um volume que tem um nome.
+
+Isso aqui eu vou ter que ir lá embaixo e falar pro Docker que eu tenho esses volumes aqui.
+
+E aí, qual que é a diferença disso? Eu ainda vou ter um bindquina, só que a diferença é que isso aqui vai ser controlado pelo próprio Docker.
+
+E aí, como isso não é um bind, não é uma máquina que não não é uma pasta que tá dentro do projeto que fica sincronizando o tempo inteiro, o problema que gera isso aqui é que quando eu carrego esse volume aqui, quando eu carrego os dados para dentro do contêiner, quando eu subo essas imagens aqui, eu vou lá e copio os dados de uma pasta qualquer do meu repositório para dentro do contêiner.
+
+Em algum momento eu fiz isso aqui, depois você olha lá com calma, mas eu copio isso aqui para dentro.
+
+O que que acontece? Quando esse volume é criado e e tá criado ali, o Docker não toca nele mais.
+
+Então, se por algum motivo eu destruir esse contêiner, voltar esse contêiner, esse volume continua lá.
+
+E aí isso pode causar confusão, porque você tem que gerenciar esses volumes manualmente.
+
+Beleza? Então esse é o tipo de problema, porque o que que acontece? Imagine que eu tô nesta máquina aqui e aí o Docker Client tá nesta máquina aqui.
+
+Quando eu mando um comando do Docker desta máquina aqui, ela manda para essa máquina com Não tô te chamando de burro, né? Só só tô falando.
+
+É isso aqui que acontece.
+
+Só que quando você chama o comando do Docker nessa máquina aqui, usando algum file do Docker Compose, ele vai buscar volumes nessa máquina aqui.
+
+E esse é um problema, porque se o motor do Docker tá nessa outra máquina aqui, isso gera um transtorno absurdo pra gente, porque em alguns momentos pode ser que ele até crie o volume do lado de cá, o que não é o que você quer.
+
+Você quer que ele use os volumes do lado de cá.
+
+Então esse é o único transtorno que eu tenho aqui quando eu tô utilizando esse tipo de setup, que é eu estar num lugar com cliente num lugar e estar com o servidor no outro lugar.
+
+Então a única coisa que você tem que tomar bastante cuidado é com volumes.
+
+Se a sua imagem não depende de nenhum volume, tranquilamente pode usar do jeito que você quiser, que não vai dar problema.
+
+Se a sua imagem depende de volume em bind projeto, aí você vai ter que cuidar com isso aí.
+
+Ou você cria a pasta nos dois locais, ou você utiliza esse name deed volumes aqui que eu tava te falando que já resolve o problema.
+
+Eu prefiro usar esse name de volume aqui, porque aí ele cria isso na hora que ele subir lá no servidor e aí já resolve isso tudo aqui de uma vez, beleza? Então é isso, pessoal, é isso para esse vídeo aqui.
+
+Eu acho que eu já postei isso no canal num short, né? E aí muita gente pediu: "Como que você faz isso aí, né? Que é esse negócio de conectar em três máquinas ao mesmo tempo utilizando o context?" Então tá aí, é Docker Context.
+
+Outra coisa que você poderia utilizar se você quisesse é o seguinte.
+
+Se você der um Docker Context LS, você vai ver que em algum contexto vai tá escrito isso aqui, eh, current docker host eh configuration, né? Eh, base configuration.
+
+Docker host é uma variável de ambiente também que você pode mudar ela e ela vai fazer quase que o mesmo processo que eu fiz aqui.
+
+Só que este processo aqui eu achei mais direto ao ponto, mais fácil até, mas se for um negócio rápido, é só você rodar a variável de ambiente aí e aí já vai.
+
+Então é isso, agora sim acabei esse vídeo aqui..
+
