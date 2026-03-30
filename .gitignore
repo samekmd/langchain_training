@@ -1,5 +1,5 @@
+vector_store
 .venv
 .env
 __pycache__
-vector_store
 mlflow.db
