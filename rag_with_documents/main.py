@@ -6,7 +6,7 @@ import time
 import streamlit as st 
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import MessagesPlaceholder, PromptTemplate, ChatPromptTemplate
-from langchain_core.runnables import RunnableBranch, RunnablePassthrough
+from langchain_core.runnables import RunnableBranch, RunnablePassthrough, RunnableLambda
 from langchain_core.documents import Document
 
 from langchain_core.output_parsers import StrOutputParser
@@ -18,12 +18,21 @@ from langchain_community.document_loaders import PyPDFLoader
 
 from agent_with_memory.main import model_hf_hub
 from youtube_transcript.main import model_groq
+from operator import itemgetter
+
+import mlflow
+from mlflow.genai.scorers import Correctness
+
 
 from dotenv import load_dotenv
 load_dotenv()
 
 HUGGING_FACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 
+mlflow.langchain.autolog()
+
+mlflow.set_experiment("RAG with documents")
+mlflow.set_tracking_uri("http://localhost:5000")
 
 
 # Indexação e recuperação de documentos usando FAISS
@@ -67,29 +76,37 @@ def config_rag_chain(model_class, retriever):
     
     llm = llm_dict[model_class]
     
-    token_s, token_e = "", "" 
-    
     # Prompt de contextualização
     # Consulta -> retriever
     # (consulta, histórico do chat) -> LLM -> Consulta reformulada -> retriever
-    context_q_system_prompt = "Given the following chat history and a user query, reformulate the query to be more specific and contextualized. If the user query is already specific, return it as is."
-    context_q_system_prompt = token_s + context_q_system_prompt + token_e
-    context_q_user_prompt = "Question: {input}" + token_e
+    context_q_system_prompt = """
+       Your task is to REWRITE the user's query to be a standalone search term for a vector database.
+RULES:
+1. Analyze the chat history and the latest user message.
+2. If the message refers to previous topics, reformulate it into a specific, independent question.
+3. If it's already independent, return the original text exactly.
+4. DO NOT answer the question.
+5. DO NOT provide any conversational preamble (e.g., "Sure, here it is..." or "I suggest...").
+6. Return ONLY the final reformulated text.
+    """
+    
     context_q_prompt = ChatPromptTemplate.from_messages(
         [
             ("system", context_q_system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
-            ("user", context_q_user_prompt)   
+            ("user", "{input}")   
         ]
     )
+    
+    query_chain = context_q_prompt | llm | StrOutputParser() 
     
     # Chain para contextualização da consulta
     history_aware_retriever = RunnableBranch(
         (
             lambda x: bool(x.get("chat_history")),
-            context_q_prompt | llm | StrOutputParser() | retriever,
+            query_chain | retriever,
         ),
-        retriever
+        itemgetter("input") | retriever
     )
  
  
@@ -101,19 +118,19 @@ def config_rag_chain(model_class, retriever):
     Pergunta: {input} \n
     Contexto: {context}"""
 
-    qa_prompt = PromptTemplate.from_template(token_s + qa_prompt_template + token_e)
+    qa_prompt = PromptTemplate.from_template(qa_prompt_template)
     
-    # Configurar a LLM e Chain para perguntas e respostas
-    rag_chain = (
-        RunnablePassthrough.assign(
-            context=history_aware_retriever
-        )
-        | RunnablePassthrough.assign(
-            answer=(qa_prompt | llm | StrOutputParser())
-        )
-    )
+    full_chain = RunnablePassthrough.assign(context=history_aware_retriever) | {
+        "answer": qa_prompt | llm | StrOutputParser(),
+        "context": itemgetter("context")
+    }
     
-    return rag_chain
+    with mlflow.start_run(run_name="RAG Chain Configuration"):
+        mlflow.log_param("model_class", model_class)
+        mlflow.log_param("retriever_type", "FAISS")
+        mlflow.log_param("embedding_model", "nomic-embed-text:latest") 
+    
+    return full_chain
 
 if __name__ == "__main__":
     # Configuração do streamlit, with emojis
